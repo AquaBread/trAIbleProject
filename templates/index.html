@@ -52,15 +52,6 @@
 
     <div id="search-info"></div>  
 
-    <div class="select-container">
-        <select id="pdf-title-dropdown" class="hidden" onchange="updateSearchByTitle()">
-            <option value="">View All PDF Results</option>
-            {% for title in pdf_titles %}
-            <option value="{{ title }}">{{ title }}</option>
-            {% endfor %}
-        </select>
-    </div> 
-
     <div class="container">
         <div class="left-column scrollable">
             <h2 id="pdf-results-heading" class="hidden"><a href="/" class="traible-search-link">PDF Results</a></h2>           

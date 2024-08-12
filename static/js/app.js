@@ -134,17 +134,63 @@ function preventClose(event) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (initialUploadRequired) {
-        showUploadModal(true);
+document.addEventListener("DOMContentLoaded", function() {
+    const uploadFileButton = document.getElementById("upload-file-button");
+    const fileInput = document.getElementById("file");
+
+    if (uploadFileButton) {
+        uploadFileButton.addEventListener("click", function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", function() {
+            const file = fileInput.files[0];
+            if (file) {
+                // Display the loading bar or perform any other UI changes here
+                const loadingBar = document.getElementById("loading-bar");
+                if (loadingBar) {
+                    loadingBar.style.display = "block";
+                }
+                uploadFile(file);
+            }
+        });
     }
-    const fileInput = document.getElementById('file-input');
-    fileInput.addEventListener('change', function() {
-        if (fileInput.value) {
-            document.querySelector('.modal .close').style.display = 'block';
-        }
-    });
+
+    function uploadFile(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/upload", true);
+
+        xhr.upload.addEventListener("progress", function(event) {
+            if (event.lengthComputable) {
+                const percentComplete = (event.loaded / event.total) * 100;
+                const loadingBar = document.getElementById("loading-bar");
+                if (loadingBar) {
+                    loadingBar.value = percentComplete;
+                }
+            }
+        });
+
+        xhr.addEventListener("load", function() {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                console.log("File uploaded successfully:", response);
+                // Hide the loading bar after the upload is complete
+                const loadingBar = document.getElementById("loading-bar");
+                if (loadingBar) {
+                    loadingBar.style.display = "none";
+                }
+            } else {
+                console.error("Error uploading file:", xhr.statusText);
+            }
+        });
+
+        xhr.send(formData);
+    }
 });
+
 
 function displayResults(tkResults, pdfResults, keywords) {
     const tkResultsDiv = document.getElementById("tk-results");
