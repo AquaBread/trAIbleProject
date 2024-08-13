@@ -19,17 +19,17 @@ h1, h2 {
 
 /********************* Hidden class *********************/
 .hidden {
-    display: none;
+    display: none !important;
 }
 
-/********************** Style for Trible Search link **********************/
-.tribble-search-link {
+/********************** Style for Traible Search link **********************/
+.traible-search-link {
     color: #333; 
     text-decoration: none; 
     transition: color 0.3s ease;
 }
 
-.tribble-search-link:hover {
+.traible-search-link:hover {
     color: rgb(0, 162, 255);
     cursor: pointer;
 }
@@ -92,7 +92,7 @@ h1, h2 {
     overflow-y: auto;
 }
 
-/********************* Trible Knowledge Forum styles *********************/
+/********************* Traible Knowledge Forum styles *********************/
 #forum-form {
     background-color: #f9f9f9;
     padding: 20px;
@@ -296,3 +296,35 @@ progress {
     text-align: center;
     margin-top: 10px;
 }
+
+/* Dropdown container */
+.select-container {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+/* Dropdown select */
+#pdf-title-dropdown {
+    padding: 10px;
+    width: 240px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-family: 'Times New Roman', Times, serif;
+    display: inline-block;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+/* Dropdown select hover and focus */
+#pdf-title-dropdown:hover,
+#pdf-title-dropdown:focus {
+    border-color: rgb(0, 162, 255);
+}
+
+/* Dropdown options */
+#pdf-title-dropdown option {
+    padding: 10px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+

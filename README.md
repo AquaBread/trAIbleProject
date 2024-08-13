@@ -1,7 +1,7 @@
-# Trible
+# Traible
 ## About
-The troubleshooting bible or Trible is both a product and a service. The product is a software that contains all the data
-from both past experiences and troubleshooting flowmaps found in all manuals specific to the company using it. Trible is
+The troubleshooting bible or Traible is both a product and a service. The product is a software that contains all the data
+from both past experiences and troubleshooting flowmaps found in all manuals specific to the company using it. Traible is
 essentially a troubleshooting search engine that uses AI, data mining and basic keyword search to develop a company
 specific solution(s) to any process upsets and/or mechanical/electrical breakdowns. It's purpose is to close the gap on
 training and make past information feasibly accessible. The service comes into play when we send a tech that is
@@ -10,10 +10,10 @@ experience any issues with the software as far as bugs or error messages when se
 issue.
 
 ## Purpose
-We are trible's, a software company focused on bridging all your communication gaps with the touch of a few fingers! We understand that your company has a vast amount of important knowledge necessary for training, troubleshooting and thoughts. However, these various facets can get lost or gained with a tremendous amount of time. Time that is immensely more valuable if invested in other areas of the company. We aim to fix that. Our program is the most user-friendly database for storing and exploring all your information, including but not limited to processes, formulas, important documents and so much more! All of this is with the intent to bridge all communication gaps. 
+We are Traible's, a software company focused on bridging all your communication gaps with the touch of a few fingers! We understand that your company has a vast amount of important knowledge necessary for training, troubleshooting and thoughts. However, these various facets can get lost or gained with a tremendous amount of time. Time that is immensely more valuable if invested in other areas of the company. We aim to fix that. Our program is the most user-friendly database for storing and exploring all your information, including but not limited to processes, formulas, important documents and so much more! All of this is with the intent to bridge all communication gaps. 
 
 ## Operations/Functions/Use
-Operations - Trible is a software package that encompasses a user-friendly search engine (similar to how the Google search engine looks). An employee and/or individual would access the software
+Operations - Traible is a software package that encompasses a user-friendly search engine (similar to how the Google search engine looks). An employee and/or individual would access the software
 that he downloaded to his computer and type in any issues that he may be experiencing. Once he is
 finished typing, (much like a search engine) the employee will hit enter and company-specific
 solution(s) will appear for them to use in resolving the issue they are experiencing.

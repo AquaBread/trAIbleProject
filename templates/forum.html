@@ -16,17 +16,18 @@
         <textarea id="problem-description" name="problem-description" rows="4" required></textarea>
         <label for="solution">Solution:</label>
         <textarea id="solution" name="solution" rows="4" required></textarea>
-
+        
         <label for="toc-dropdown">Select Chapter:</label>
         <select id="toc-dropdown" name="toc-dropdown">
             <option value="">--Select Chapter--</option>
         </select>
-
+        
         <button type="submit">Submit</button>
     </form>
     <div id="thank-you-message" class="hidden">Thank you for your submission!</div>
 
     <script>
+        
         function fetchTOC() {
             fetch('/get_toc')
                 .then(response => response.json())
@@ -35,7 +36,7 @@
                 })
                 .catch(error => console.error('Error fetching TOC:', error));
         }
-
+        
         function populateTOCDropdown(toc) {
             var tocDropdown = document.getElementById("toc-dropdown");
             toc.forEach(item => {
@@ -46,7 +47,7 @@
                 tocDropdown.appendChild(option);
             });
         }
-
+        
         function submitProblem(event) {
             event.preventDefault();
         
@@ -60,7 +61,7 @@
             if (selectedChapter) {
                 chapterPage = document.getElementById("toc-dropdown").options[document.getElementById("toc-dropdown").selectedIndex].getAttribute('data-page');
             }
-        
+            
             fetch('/submit_problem', {
                 method: 'POST',
                 headers: {

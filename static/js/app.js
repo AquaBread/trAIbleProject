@@ -6,6 +6,17 @@ socket.on('progress', function (data) {
     document.getElementById('progress-text').textContent = `${progress.toFixed(2)}%`;
 });
 
+socket.on('update_pdf_titles', function (pdfTitles) {
+    const pdfTitleDropdown = document.getElementById('pdf-title-dropdown');
+    pdfTitleDropdown.innerHTML = '<option value="">Select PDF Title</option>'; // Clear existing options
+    pdfTitles.forEach(title => {
+        const option = document.createElement('option');
+        option.value = title;
+        option.textContent = title;
+        pdfTitleDropdown.appendChild(option);
+    });
+});
+
 document.getElementById('upload-form').addEventListener('submit', function (event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -29,7 +40,6 @@ document.getElementById('upload-form').addEventListener('submit', function (even
             document.getElementById('loading-container').style.display = 'none';
             alert('File uploaded successfully!');
         } else if (xhr.status === 400) {
-            // Handle the specific error from the server
             const response = JSON.parse(xhr.responseText);
             alert(response.error || 'Failed to upload file.');
         } else {
@@ -40,17 +50,17 @@ document.getElementById('upload-form').addEventListener('submit', function (even
     xhr.send(formData);
 });
 
-
 function searchKeywords() {
     const keywordsInput = document.getElementById("keywords").value;
     const keywords = keywordsInput.split(",").map(keyword => keyword.trim());
+    const pdfTitle = document.getElementById("pdf-title-dropdown").value;
 
     fetch('/search', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ keywords }),
+        body: JSON.stringify({ keywords, pdf_title: pdfTitle }),
     })
     .then(response => response.json())
     .then(data => {
@@ -60,11 +70,12 @@ function searchKeywords() {
     .catch(error => console.error('Error:', error));
 }
 
+
 function displaySearchInfo(data) {
     const searchInfoDiv = document.getElementById("search-info");
     searchInfoDiv.innerHTML = `<b>Search Duration:</b> ${data.duration.toFixed(3)} seconds <br><b>Results Found:</b> ${data.num_results}`;
 
-    document.getElementById("trible-knowledge-heading").classList.remove("hidden");
+    document.getElementById("traible-knowledge-heading").classList.remove("hidden");
     document.getElementById("pdf-results-heading").classList.remove("hidden");
 }
 
@@ -133,12 +144,18 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.modal .close').style.display = 'block';
         }
     });
+
+    // Add event listener to dropdown to trigger search
+    const pdfTitleDropdown = document.getElementById('pdf-title-dropdown');
+    pdfTitleDropdown.addEventListener('change', function() {
+        searchKeywords();
+    });
 });
 
 function displayResults(tkResults, pdfResults, keywords) {
     const tkResultsDiv = document.getElementById("tk-results");
     const pdfResultsDiv = document.getElementById("pdf-results");
-    const tribleKnowledgeHeading = document.getElementById("trible-knowledge-heading");
+    const traibleKnowledgeHeading = document.getElementById("traible-knowledge-heading");
     const pdfResultsHeading = document.getElementById("pdf-results-heading");
 
     tkResultsDiv.innerHTML = "";
@@ -147,65 +164,38 @@ function displayResults(tkResults, pdfResults, keywords) {
     let tkResultsFound = false;
     let pdfResultsFound = false;
 
-    function stripHtmlTags(str) {
-        return str.replace(/<\/?[^>]+(>|$)/g, "");
-    }
-
-    function boldKeyword(sentence, keyword) {
-        const regex = new RegExp(`(${keyword})`, "gi");
-        return sentence.replace(regex, "<b>$1</b>");
-    }
-
     if (tkResults.length > 0) {
-        tribleKnowledgeHeading.classList.remove("hidden");
-
+        traibleKnowledgeHeading.classList.remove("hidden");
         keywords.forEach(keyword => {
             const keywordDiv = document.createElement("div");
             const keywordHeading = document.createElement("h3");
             const keywordResultsDiv = document.createElement("div");
             keywordResultsDiv.classList.add("keyword-results");
 
-            if (keywords.length === 1) {
-                keywordResultsDiv.style.display = "block";
-            } else {
-                keywordResultsDiv.style.display = "none";
-            }
-
             const keywordResults = tkResults.filter(result => {
-                const problemDescription = stripHtmlTags(result['Problem Description']);
-                const solution = stripHtmlTags(result.Solution);
-                return problemDescription.toLowerCase().includes(keyword.toLowerCase()) || solution.toLowerCase().includes(keyword.toLowerCase());
+                return result['Problem Description'].toLowerCase().includes(keyword.toLowerCase()) || result['Solution'].toLowerCase().includes(keyword.toLowerCase());
             });
 
             if (keywordResults.length > 0) {
                 tkResultsFound = true;
                 keywordHeading.innerText = `Results for "${keyword}"`;
                 keywordHeading.classList.add("keyword-heading");
-
-                if (keywords.length > 1) {
-                    keywordHeading.onclick = () => {
-                        keywordResultsDiv.style.display = keywordResultsDiv.style.display === "none" ? "block" : "none";
-                    };
-                }
-
                 keywordResults.forEach(result => {
                     const resultDiv = document.createElement("div");
                     resultDiv.classList.add("result-item");
                     resultDiv.innerHTML = `
                         <b>Submitted by:</b> ${result.Name}<br>
-                        <b>Problem Description:</b> ${boldKeyword(result['Problem Description'], keyword)}<br>
-                        <b>Solution:</b> ${boldKeyword(result.Solution, keyword)}<br>
+                        <b>Problem Description:</b> ${result['Problem Description']}<br>
+                        <b>Solution:</b> ${result.Solution}<br>
                         <b>Chapter:</b> ${result.Chapter}<br>
                     `;
                     keywordResultsDiv.appendChild(resultDiv);
                 });
-
                 keywordDiv.appendChild(keywordHeading);
                 keywordDiv.appendChild(keywordResultsDiv);
                 tkResultsDiv.appendChild(keywordDiv);
             }
         });
-
         if (!tkResultsFound && keywords.length === 1) {
             tkResultsDiv.innerHTML = `No results found for "${keywords[0]}".`;
         }
@@ -215,18 +205,12 @@ function displayResults(tkResults, pdfResults, keywords) {
 
     if (pdfResults.length > 0) {
         pdfResultsHeading.classList.remove("hidden");
-
+        document.getElementById("pdf-title-dropdown").classList.remove("hidden");
         keywords.forEach(keyword => {
             const keywordDiv = document.createElement("div");
             const keywordHeading = document.createElement("h3");
             const keywordResultsDiv = document.createElement("div");
             keywordResultsDiv.classList.add("keyword-results");
-
-            if (keywords.length === 1) {
-                keywordResultsDiv.style.display = "block";
-            } else {
-                keywordResultsDiv.style.display = "none";
-            }
 
             const keywordResults = pdfResults.filter(result => {
                 return result.Keyword && result.Keyword.toLowerCase().includes(keyword.toLowerCase());
@@ -236,17 +220,10 @@ function displayResults(tkResults, pdfResults, keywords) {
                 pdfResultsFound = true;
                 keywordHeading.innerText = `Results for "${keyword}"`;
                 keywordHeading.classList.add("keyword-heading");
-
-                if (keywords.length > 1) {
-                    keywordHeading.onclick = () => {
-                        keywordResultsDiv.style.display = keywordResultsDiv.style.display === "none" ? "block" : "none";
-                    };
-                }
-
                 keywordResults.forEach(result => {
                     const link = document.createElement("a");
                     link.innerHTML = `
-                        ${boldKeyword(result.Sentence, keyword)}<br>
+                        ${result.Sentence}<br>
                         <b>PDF Title:</b> ${result.Title}<br>
                         <b>Page Number:</b> ${result['Page Number']}<br>
                     `;
@@ -255,13 +232,11 @@ function displayResults(tkResults, pdfResults, keywords) {
                     keywordResultsDiv.appendChild(link);
                     keywordResultsDiv.appendChild(document.createElement("br"));
                 });
-
                 keywordDiv.appendChild(keywordHeading);
                 keywordDiv.appendChild(keywordResultsDiv);
                 pdfResultsDiv.appendChild(keywordDiv);
             }
         });
-
         if (!pdfResultsFound && keywords.length === 1) {
             pdfResultsDiv.innerHTML = `No results found for "${keywords[0]}".`;
         }

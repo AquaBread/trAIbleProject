@@ -15,7 +15,7 @@ socketio = SocketIO(app)
 UPLOAD_FOLDER = 'resources/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 INDEX_FILE_PATH = 'resources/index.json'
-FORUM_FILE_PATH = 'data/tribleKnowledge/tkData.json'
+FORUM_FILE_PATH = 'data/traibleKnowledge/tkData.json'
 ALLOWED_EXTENSIONS = {'pdf'}
 
 PDF_FILE_PATH = INDEX_FILE_PATH
@@ -63,6 +63,14 @@ def load_index_from_file(filename):
             return json.load(file)
     return {}
 
+def load_forum_data():
+    if os.path.exists(FORUM_FILE_PATH):
+        with open(FORUM_FILE_PATH, 'r') as f:
+            return json.load(f)
+    else:
+        return []
+
+
 def is_index_file_empty(filename):
     if os.path.exists(filename):
         with open(filename, 'r') as file:
@@ -95,7 +103,7 @@ def search_keywords_in_tkdata(tkdata, keywords):
                 })
     return results
 
-def search_keywords_in_pdf(pdf_file, keywords):
+def search_keywords_in_pdf(pdf_file, keywords, title_filter=None):
     if not os.path.isfile(pdf_file):
         print("No such file:", os.path.basename(pdf_file))
         return [], 0.0
@@ -108,10 +116,16 @@ def search_keywords_in_pdf(pdf_file, keywords):
         index = preprocess_pdf(pdf_file, title=os.path.basename(pdf_file))
         save_index_to_file(index, INDEX_FILE_PATH)
 
-    found_data = search_keywords_in_index(index, keywords)
+    found_data = []
+    for title, entries in index.items():
+        if title_filter and title != title_filter:
+            continue
+        found_data.extend(search_keywords_in_index({title: entries}, keywords))
+    
     end_time = time.time()
     duration = end_time - start_time
     return found_data, duration
+
 
 def save_forum_data(name, problem_description, solution, chapter_name, chapter_page):
     forum_data = {
@@ -125,13 +139,6 @@ def save_forum_data(name, problem_description, solution, chapter_name, chapter_p
     forum_list.append(forum_data)
     with open(FORUM_FILE_PATH, 'w') as f:
         json.dump(forum_list, f, indent=4)
-
-def load_forum_data():
-    if os.path.exists(FORUM_FILE_PATH):
-        with open(FORUM_FILE_PATH, 'r') as f:
-            return json.load(f)
-    else:
-        return []
 
 def extract_toc(pdf_file):
     toc = []
@@ -191,10 +198,12 @@ def submit_problem():
 def index():
     index_empty = is_index_file_empty(INDEX_FILE_PATH)
     pdf_path_set = PDF_FILE_PATH is not None
+    pdf_titles = [title for title in load_index_from_file(INDEX_FILE_PATH).keys()]
     if not index_empty and pdf_path_set:
-        return render_template('index.html', show_upload_modal=False)
+        return render_template('index.html', show_upload_modal=False, pdf_titles=pdf_titles)
     else:
-        return render_template('index.html', show_upload_modal=True)
+        return render_template('index.html', show_upload_modal=True, pdf_titles=pdf_titles)
+
 
 @app.route('/upload_prompt')
 def upload_prompt():
@@ -204,15 +213,16 @@ def upload_prompt():
 def search():
     if is_index_file_empty(INDEX_FILE_PATH):
         return jsonify({'error': 'Index is empty. Please upload a PDF to search through.'}), 400
-    
+
     if PDF_FILE_PATH is None:
         return jsonify({'error': 'No PDF file has been uploaded. Please upload a PDF to search through.'}), 400
-    
+
     data = request.get_json()
     keywords = data['keywords']
+    pdf_title = data.get('pdf_title')  # New parameter for PDF title
 
     tk_data = search_keywords_in_tkdata(load_forum_data(), keywords)
-    pdf_data, duration = search_keywords_in_pdf(PDF_FILE_PATH, keywords)
+    pdf_data, duration = search_keywords_in_pdf(PDF_FILE_PATH, keywords, pdf_title)  # Pass pdf_title
 
     response = {
         'results': {
@@ -279,9 +289,13 @@ def upload_file():
         # Save the merged index back to the file
         save_index_to_file(index, INDEX_FILE_PATH)
 
+        # Emit socket event to update the PDF title dropdown
+        socketio.emit('update_pdf_titles', list(index.keys()))
+
         return redirect(url_for('index'))
     else:
         return 'File not allowed', 400
+
 
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
