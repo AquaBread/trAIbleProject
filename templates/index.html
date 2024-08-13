@@ -18,7 +18,6 @@
         <button id="upload-button" onclick="showUploadModal()">Upload a File</button>
     </div>
     
-
     {% if show_upload_modal %}
     <script>
         window.onload = function() {
@@ -26,13 +25,6 @@
         };
     </script>
     {% endif %}
-    
-    <select id="pdf-title-dropdown", class=hidden>
-        <option value="">Select PDF Title</option>
-        {% for title in pdf_titles %}
-        <option value="{{ title }}">{{ title }}</option>
-        {% endfor %}
-    </select>
 
     <!-- Upload -->
     <div id="upload-modal" class="modal">
@@ -54,7 +46,13 @@
 
     <div class="container">
         <div class="left-column scrollable">
-            <h2 id="pdf-results-heading" class="hidden"><a href="/" class="traible-search-link">PDF Results</a></h2>           
+            <h2 id="pdf-results-heading" class="hidden"><a href="/" class="traible-search-link">PDF Results</a></h2>
+            <select id="pdf-title-dropdown", class="hidden">
+                <option value="">Select PDF Title</option>
+                {% for title in pdf_titles %}
+                <option value="{{ title }}">{{ title }}</option>
+                {% endfor %}
+            </select>
             <div id="pdf-results">
                 <div id="results"></div>
             </div>

@@ -54,7 +54,6 @@ function searchKeywords() {
     const keywordsInput = document.getElementById("keywords").value;
     const keywords = keywordsInput.split(",").map(keyword => keyword.trim());
     const pdfTitle = document.getElementById("pdf-title-dropdown").value;
-    
 
     fetch('/search', {
         method: 'POST',
@@ -70,6 +69,7 @@ function searchKeywords() {
     })
     .catch(error => console.error('Error:', error));
 }
+
 
 function displaySearchInfo(data) {
     const searchInfoDiv = document.getElementById("search-info");
@@ -134,70 +134,29 @@ function preventClose(event) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    const uploadFileButton = document.getElementById("upload-file-button");
-    const fileInput = document.getElementById("file");
-
-    if (uploadFileButton) {
-        uploadFileButton.addEventListener("click", function() {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener("change", function() {
-            const file = fileInput.files[0];
-            if (file) {
-                // Display the loading bar or perform any other UI changes here
-                const loadingBar = document.getElementById("loading-bar");
-                if (loadingBar) {
-                    loadingBar.style.display = "block";
-                }
-                uploadFile(file);
-            }
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    if (initialUploadRequired) {
+        showUploadModal(true);
     }
+    const fileInput = document.getElementById('file-input');
+    fileInput.addEventListener('change', function() {
+        if (fileInput.value) {
+            document.querySelector('.modal .close').style.display = 'block';
+        }
+    });
 
-    function uploadFile(file) {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/upload", true);
-
-        xhr.upload.addEventListener("progress", function(event) {
-            if (event.lengthComputable) {
-                const percentComplete = (event.loaded / event.total) * 100;
-                const loadingBar = document.getElementById("loading-bar");
-                if (loadingBar) {
-                    loadingBar.value = percentComplete;
-                }
-            }
-        });
-
-        xhr.addEventListener("load", function() {
-            if (xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-                console.log("File uploaded successfully:", response);
-                // Hide the loading bar after the upload is complete
-                const loadingBar = document.getElementById("loading-bar");
-                if (loadingBar) {
-                    loadingBar.style.display = "none";
-                }
-            } else {
-                console.error("Error uploading file:", xhr.statusText);
-            }
-        });
-
-        xhr.send(formData);
-    }
+    // Add event listener to dropdown to trigger search
+    const pdfTitleDropdown = document.getElementById('pdf-title-dropdown');
+    pdfTitleDropdown.addEventListener('change', function() {
+        searchKeywords();
+    });
 });
-
 
 function displayResults(tkResults, pdfResults, keywords) {
     const tkResultsDiv = document.getElementById("tk-results");
     const pdfResultsDiv = document.getElementById("pdf-results");
     const traibleKnowledgeHeading = document.getElementById("traible-knowledge-heading");
     const pdfResultsHeading = document.getElementById("pdf-results-heading");
-    const pdfTitleDropdown = document.getElementById('pdf-title-dropdown');
 
     tkResultsDiv.innerHTML = "";
     pdfResultsDiv.innerHTML = "";
@@ -246,7 +205,7 @@ function displayResults(tkResults, pdfResults, keywords) {
 
     if (pdfResults.length > 0) {
         pdfResultsHeading.classList.remove("hidden");
-        pdfTitleDropdown.classList.remove("hidden");
+        document.getElementById("pdf-title-dropdown").classList.remove("hidden");
         keywords.forEach(keyword => {
             const keywordDiv = document.createElement("div");
             const keywordHeading = document.createElement("h3");

@@ -52,6 +52,7 @@ def is_pdf_already_uploaded(filename, index_file_path=INDEX_FILE_PATH):
     # Check if the filename exists in any branch of the index
     return filename in index
 
+
 def save_index_to_file(index, filename):
     with open(filename, 'w') as file:
         json.dump(index, file, indent=4)
@@ -68,6 +69,7 @@ def load_forum_data():
             return json.load(f)
     else:
         return []
+
 
 def is_index_file_empty(filename):
     if os.path.exists(filename):
@@ -124,6 +126,7 @@ def search_keywords_in_pdf(pdf_file, keywords, title_filter=None):
     duration = end_time - start_time
     return found_data, duration
 
+
 def save_forum_data(name, problem_description, solution, chapter_name, chapter_page):
     forum_data = {
         'Name': name,
@@ -151,25 +154,25 @@ def extract_toc(pdf_file):
     return toc
 
 def find_pdf_path(pdf_title, directory='resources/uploads'):
-    # Ensure the title ends with '.pdf'
-    if not pdf_title.lower().endswith('.pdf'):
-        raise ValueError("The provided title must include the '.pdf' extension")
-    
-    # Construct the full path for the directory
-    search_directory = os.path.abspath(directory)
-    
-    # Check if the directory exists
-    if not os.path.isdir(search_directory):
-        raise FileNotFoundError(f"The directory '{search_directory}' does not exist")
-    
-    # Search for the PDF file in the directory
-    for root, dirs, files in os.walk(search_directory):
-        if pdf_title in files:
-            # Return the full path of the found PDF file
-            return os.path.join(root, pdf_title)
-    
-    # Return None if the PDF file was not found
-    return None
+        # Ensure the title ends with '.pdf'
+        if not pdf_title.lower().endswith('.pdf'):
+            raise ValueError("The provided title must include the '.pdf' extension")
+        
+        # Construct the full path for the directory
+        search_directory = os.path.abspath(directory)
+        
+        # Check if the directory exists
+        if not os.path.isdir(search_directory):
+            raise FileNotFoundError(f"The directory '{search_directory}' does not exist")
+        
+        # Search for the PDF file in the directory
+        for root, dirs, files in os.walk(search_directory):
+            if pdf_title in files:
+                # Return the full path of the found PDF file
+                return os.path.join(root, pdf_title)
+        
+        # Return None if the PDF file was not found
+        return None
 
 @app.route('/get_toc')
 def get_toc():
@@ -200,6 +203,7 @@ def index():
         return render_template('index.html', show_upload_modal=False, pdf_titles=pdf_titles)
     else:
         return render_template('index.html', show_upload_modal=True, pdf_titles=pdf_titles)
+
 
 @app.route('/upload_prompt')
 def upload_prompt():
@@ -238,56 +242,62 @@ def view_pdf():
     if not pdf_title:
         return "PDF title is required", 400
 
+    # Find the path to the PDF
     pdf_path = find_pdf_path(pdf_title)
-    if pdf_path is None:
-        return "PDF file not found", 404
+    
+    if not pdf_path:
+        return "PDF not found", 404
 
-    pdf_document = fitz.open(pdf_path)
-    if page_number is None:
-        return send_file(pdf_path, as_attachment=True)
+    # Return the PDF file
+    return send_file(pdf_path)
 
-    try:
-        page_number = int(page_number) - 1
-        if page_number < 0 or page_number >= len(pdf_document):
-            return "Invalid page number", 400
-
-        page = pdf_document.load_page(page_number)
-        pdf_bytes = page.get_pixmap().tobytes("png")
-        return send_file(io.BytesIO(pdf_bytes), mimetype="image/png")
-
-    except (ValueError, TypeError):
-        return "Invalid page number", 400
+@app.route('/forum')
+def forum():
+    return render_template('forum.html')
 
 @app.route('/upload', methods=['POST'])
-def upload():
+def upload_file():
     if 'file' not in request.files:
         return redirect(request.url)
-
+    
     file = request.files['file']
     if file.filename == '':
         return redirect(request.url)
-
+    
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
+        
+        # Check if the PDF is already uploaded
         if is_pdf_already_uploaded(filename):
-            return jsonify({'error': 'PDF already uploaded. Please upload a different file.'}), 400
+            return jsonify({'error': 'This PDF has already been uploaded.'}), 400
+        
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        
+        global PDF_FILE_PATH
+        PDF_FILE_PATH = file_path  # Ensure this is set correctly
 
-        file.save(save_path)
+        # Load existing index
+        index = load_index_from_file(INDEX_FILE_PATH)
 
-        title = os.path.splitext(filename)[0]
-        index_data = preprocess_pdf(save_path, title=title)
-        if os.path.isfile(INDEX_FILE_PATH):
-            existing_index = load_index_from_file(INDEX_FILE_PATH)
-            existing_index.update(index_data)
-            save_index_to_file(existing_index, INDEX_FILE_PATH)
-        else:
-            save_index_to_file(index_data, INDEX_FILE_PATH)
+        # Preprocess the uploaded PDF
+        new_index = preprocess_pdf(PDF_FILE_PATH, title=filename)
 
-        return jsonify({'message': 'File uploaded successfully', 'filename': filename})
+        # Merge the new index with the existing index
+        index.update(new_index)
 
-    return jsonify({'error': 'Invalid file type. Only PDF files are allowed.'}), 400
+        # Save the merged index back to the file
+        save_index_to_file(index, INDEX_FILE_PATH)
+
+        # Emit socket event to update the PDF title dropdown
+        socketio.emit('update_pdf_titles', list(index.keys()))
+
+        return redirect(url_for('index'))
+    else:
+        return 'File not allowed', 400
+
 
 if __name__ == '__main__':
-    socketio.run(app)
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+    socketio.run(app, debug=True)
