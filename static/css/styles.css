@@ -238,7 +238,8 @@ h1, h2 {
 }
 
 /* Form styling */
-#upload-form {
+#upload-form,
+#remove-form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -304,7 +305,8 @@ progress {
 }
 
 /* Dropdown select */
-#pdf-title-dropdown {
+#pdf-title-dropdown,
+#remove-file-dropdown {
     padding: 10px;
     width: 240px;
     border-radius: 5px;

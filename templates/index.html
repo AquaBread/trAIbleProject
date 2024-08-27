@@ -30,7 +30,7 @@
     <div id="upload-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="hideUploadModal()">&times;</span>
-            <h2>Upload or Remove a File</h2>
+            <h2>Upload a File</h2>
             
             <!-- Upload Form -->
             <form id="upload-form" method="post" enctype="multipart/form-data" onsubmit="return checkFileUploaded()">
@@ -40,7 +40,7 @@
 
             <!-- Remove Form -->
             <form id="remove-form" onsubmit="return confirmAndRemoveFile(event)">
-                <label for="remove-file-dropdown">Remove a File:</label>
+                <h2 for="remove-file-dropdown">Remove a File:</h2>
                 <select id="remove-file-dropdown">
                     <option value="">Select PDF Title</option>
                     {% for title in pdf_titles %}
