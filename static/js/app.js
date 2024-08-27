@@ -244,3 +244,50 @@ function displayResults(tkResults, pdfResults, keywords) {
         pdfResultsDiv.innerHTML = `No results found for "${keywords.join(', ')}".`;
     }
 }
+
+function confirmAndRemoveFile(event) {
+    event.preventDefault();
+    const fileDropdown = document.getElementById('remove-file-dropdown');
+    const selectedFile = fileDropdown.value;
+
+    if (!selectedFile) {
+        alert('Please select a file to remove.');
+        return false;
+    }
+
+    const confirmation = confirm(`Are you sure you want to remove the file: "${selectedFile}"?`);
+    if (confirmation) {
+        // Send a POST request to remove the file
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/remove_file', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                const status = xhr.status;
+                if (status === 200) {
+                    alert('File removed successfully.');
+                    socket.emit('update_pdf_titles');
+                } else {
+                    alert('An error occurred: ' + xhr.responseText);
+                }
+            }
+        };
+        xhr.send(JSON.stringify({ 'file_name': selectedFile }));
+    }
+}
+
+socket.on('update_pdf_titles', function (pdfTitles) {
+    const pdfTitleDropdown = document.getElementById('pdf-title-dropdown');
+    const removeFileDropdown = document.getElementById('remove-file-dropdown');
+    
+    pdfTitleDropdown.innerHTML = '<option value="">Select PDF Title</option>';
+    removeFileDropdown.innerHTML = '<option value="">Select PDF Title</option>';
+    
+    pdfTitles.forEach(title => {
+        const option = document.createElement('option');
+        option.value = title;
+        option.textContent = title;
+        pdfTitleDropdown.appendChild(option);
+        removeFileDropdown.appendChild(option);
+    });
+});

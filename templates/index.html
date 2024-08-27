@@ -30,17 +30,33 @@
     <div id="upload-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="hideUploadModal()">&times;</span>
-            <h2>Upload a File</h2>
+            <h2>Upload or Remove a File</h2>
+            
+            <!-- Upload Form -->
             <form id="upload-form" method="post" enctype="multipart/form-data" onsubmit="return checkFileUploaded()">
                 <input type="file" name="file" id="file-input" required>
                 <button type="submit">Upload</button>
             </form>
+
+            <!-- Remove Form -->
+            <form id="remove-form" onsubmit="return confirmAndRemoveFile(event)">
+                <label for="remove-file-dropdown">Remove a File:</label>
+                <select id="remove-file-dropdown">
+                    <option value="">Select PDF Title</option>
+                    {% for title in pdf_titles %}
+                    <option value="{{ title }}">{{ title }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Remove</button>
+            </form>
+
             <div id="loading-container">
                 <progress id="progress-bar" value="0" max="100"></progress>
                 <p id="progress-text">0%</p>
             </div>
         </div>
     </div>
+
 
     <div id="search-info"></div>  
 

@@ -293,6 +293,37 @@ def upload_file():
         return redirect(url_for('index'))
     else:
         return 'File not allowed', 400
+    
+@app.route('/remove_file', methods=['POST'])
+def remove_file():
+    try:
+        data = request.json
+        file_to_remove = data['file_name']
+
+        # Load the current index
+        index = load_index_from_file(INDEX_FILE_PATH)
+
+        # Check if the file exists in the index
+        if file_to_remove not in index:
+            return jsonify({'error': 'File not found in index.'}), 404
+
+        # Remove the file and its contents from the index
+        del index[file_to_remove]
+
+        # Save the updated index back to the file
+        save_index_to_file(index, INDEX_FILE_PATH)
+
+        # Delete the actual PDF file from the uploads folder
+        file_path = find_pdf_path(file_to_remove)
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+
+        # Emit socket event to update the PDF title dropdown
+        socketio.emit('update_pdf_titles', list(index.keys()))
+
+        return jsonify({'message': f'File "{file_to_remove}" removed successfully.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
