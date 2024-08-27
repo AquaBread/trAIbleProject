@@ -52,7 +52,6 @@ def is_pdf_already_uploaded(filename, index_file_path=INDEX_FILE_PATH):
     # Check if the filename exists in any branch of the index
     return filename in index
 
-
 def save_index_to_file(index, filename):
     with open(filename, 'w') as file:
         json.dump(index, file, indent=4)
@@ -125,7 +124,6 @@ def search_keywords_in_pdf(pdf_file, keywords, title_filter=None):
     end_time = time.time()
     duration = end_time - start_time
     return found_data, duration
-
 
 def save_forum_data(name, problem_description, solution, chapter_name, chapter_page):
     forum_data = {
@@ -295,7 +293,6 @@ def upload_file():
         return redirect(url_for('index'))
     else:
         return 'File not allowed', 400
-
 
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
