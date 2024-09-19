@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta Tags for Responsive Design -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Page Title -->
     <title>Traible</title>
+    
+    <!-- Link to External CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- External JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
 </head>
 <body>
+    <!-- Header with Link to Home -->
     <h1 id="top"><a href="/" class="traible-search-link">Traible Search</a></h1>
 
+    <!-- Search Container with Input and Buttons -->
     <div class="search-container">
         <input type="text" id="keywords" name="keywords" placeholder="Enter Keywords (comma-separated)">
         <button onclick="searchKeywords()">Search</button>
@@ -18,6 +27,7 @@
         <button id="upload-button" onclick="showUploadModal()">Upload a File</button>
     </div>
     
+    <!-- Conditional Script to Show Upload Modal on Page Load -->
     {% if show_upload_modal %}
     <script>
         window.onload = function() {
@@ -26,9 +36,10 @@
     </script>
     {% endif %}
 
-    <!-- Upload Modal -->
+    <!-- Upload Modal Structure -->
     <div id="upload-modal" class="modal">
         <div class="modal-content">
+            <!-- Close Button for Modal -->
             <span class="close" onclick="hideUploadModal()">&times;</span>
             <h2>Upload a File</h2>
             
@@ -38,9 +49,9 @@
                 <button type="submit">Upload</button>
             </form>
 
-            <!-- Remove Form -->
+            <!-- Remove File Form -->
             <form id="remove-form" onsubmit="return confirmAndRemoveFile(event)">
-                <h2 for="remove-file-dropdown">Remove a File:</h2>
+                <h2>Remove a File:</h2>
                 <select id="remove-file-dropdown">
                     <option value="">Select PDF Title</option>
                     {% for title in pdf_titles %}
@@ -50,17 +61,20 @@
                 <button type="submit">Remove</button>
             </form>
 
-            <div id="loading-container">
+            <!-- Loading Indicator -->
+            <div id="loading-container" style="display: none;">
                 <progress id="progress-bar" value="0" max="100"></progress>
                 <p id="progress-text">0%</p>
             </div>
         </div>
     </div>
 
-
+    <!-- Div to Display Search Information -->
     <div id="search-info"></div>  
 
+    <!-- Main Container with Left and Right Columns -->
     <div class="container">
+        <!-- Left Column for PDF Search Results -->
         <div class="left-column scrollable">
             <h2 id="pdf-results-heading" class="hidden"><a href="/" class="traible-search-link">PDF Results</a></h2>
             <select id="pdf-title-dropdown" class="hidden">
@@ -74,15 +88,19 @@
             </div>
         </div>
 
+        <!-- Right Column for Traible Knowledge Forum Results -->
         <div class="right-column scrollable">
             <h2 id="traible-knowledge-heading" class="hidden">Traible Knowledge</h2>
             <div id="tk-results" class="results-container"></div>
         </div>
     </div>
 
+    <!-- Script to Pass Server-Side Variable to Client -->
     <script>
         var initialUploadRequired = {{ show_upload_modal | tojson }};
     </script>
+    
+    <!-- Link to External JavaScript File -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
