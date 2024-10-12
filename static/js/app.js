@@ -357,3 +357,25 @@ function confirmAndRemoveFile(event) {
     }
 }
 
+// Chat functionality
+const socket = io();
+
+function sendMessage() {
+    const message = document.getElementById('user-input').value;
+    if (message.trim() !== '') {
+        socket.emit('send_message', {message: message});
+        document.getElementById('chat-messages').innerHTML += '<p><strong>You:</strong> ' + message + '</p>';
+        document.getElementById('user-input').value = '';
+    }
+}
+
+socket.on('receive_message', function(data) {
+    document.getElementById('chat-messages').innerHTML += '<p><strong>AI:</strong> ' + data.message + '</p>';
+});
+
+// Add event listener for Enter key in the input field
+document.getElementById('user-input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+});
