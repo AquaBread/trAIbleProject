@@ -40,7 +40,7 @@ h1, h2 {
 #chat-container textarea,
 #chat-container select {
     background-color: #2a2929; /* Dark background for inputs in chat */
-    border: 1px solid #043851; /* Darker border color */
+    border: 1px solid #2c468e; /* Darker border color */
     color: #d7d7d7; /* Light text color for readability */
 }
 
@@ -50,17 +50,17 @@ h1, h2 {
     margin-bottom: 10px;
     padding: 10px;
     background-color: #2a2929;
-    border: 1px solid #043851;
+    border: 1px solid #2c468e;
     border-radius: 3px;
     color: #d7d7d7;
 
 }
 #chat-messages .user-message {
-    color: #ffffff; !important; /* White for user messages */
+    color: #ffffff; /* White for user messages */
 }
 
 #chat-messages .ai-response {
-    color: #a0e0ff; !important; /* Light blue for AI responses */
+    color: #a0e0ff; /* Light blue for AI responses */
 }
 #user-input {
     width: 70%;

@@ -115,13 +115,13 @@
             var message = $('#user-input').val();
             if (message.trim() !== '') {
                 socket.emit('send_message', {message: message});
-                $('#chat-messages').append('<p><strong>You:</strong> ' + message + '</p>');
+                $('#chat-messages').append('<p class="user-message"><strong>You:</strong> ' + message + '</p>');
                 $('#user-input').val('');
             }
         }
 
         socket.on('receive_message', function(data) {
-            $('#chat-messages').append('<p><strong>AI:</strong> ' + data.message + '</p>');
+            $('#chat-messages').append('<p class="ai-response"><strong>AI:</strong> ' + data.message + '</p>');
         });
     </script>
 </body>
