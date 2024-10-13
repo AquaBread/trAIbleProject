@@ -358,8 +358,6 @@ function confirmAndRemoveFile(event) {
 }
 
 // Chat functionality
-const socket = io();
-
 function sendMessage() {
     const message = document.getElementById('user-input').value;
     if (message.trim() !== '') {
