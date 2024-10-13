@@ -351,7 +351,8 @@ def search():
         return jsonify({'error': 'No PDF file has been uploaded. Please upload a PDF to search through.'}), 400
 
     data = request.get_json()
-    keywords = data['keywords']
+    #keywords = data['keywords']
+    keywords = data.get('keywords', [])
     pdf_title = data.get('pdf_title')  # Optional filter for a specific PDF
 
     # Search in forum data
