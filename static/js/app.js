@@ -364,13 +364,13 @@ function sendMessage() {
     const message = document.getElementById('user-input').value;
     if (message.trim() !== '') {
         socket.emit('send_message', {message: message});
-        document.getElementById('chat-messages').innerHTML += '<p><strong>You:</strong> ' + message + '</p>';
+        document.getElementById('chat-messages').innerHTML += '<p class="user-message"><strong>You:</strong> ' + message + '</p>';
         document.getElementById('user-input').value = '';
     }
 }
 
 socket.on('receive_message', function(data) {
-    document.getElementById('chat-messages').innerHTML += '<p><strong>AI:</strong> ' + data.message + '</p>';
+    document.getElementById('chat-messages').innerHTML += '<p class="ai-response"><strong>AI:</strong> ' + data.message + '</p>';
 });
 
 // Add event listener for Enter key in the input field

@@ -1,6 +1,6 @@
 /*********************  Body styles ******************** */
 body {
-    background-color: #151515;
+    background-color: #191919;
     color: #333;
     font-family: 'Times New Roman', Times, serif;
     margin: 0;
@@ -24,8 +24,8 @@ h1, h2 {
 
 /*********************  Chat Container styles ******************** */
 #chat-container {
-    width: 500px;
-    border: 1px solid #bbb;
+    width: 600px;
+    border: 1px solid #2c468e;
     padding: 10px;
     margin-top: 20px;
     position: absolute;
@@ -35,16 +35,33 @@ h1, h2 {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+
+#chat-container input[type="text"],
+#chat-container textarea,
+#chat-container select {
+    background-color: #2a2929; /* Dark background for inputs in chat */
+    border: 1px solid #043851; /* Darker border color */
+    color: #d7d7d7; /* Light text color for readability */
+}
+
 #chat-messages {
     height: 300px;
     overflow-y: auto;
     margin-bottom: 10px;
     padding: 10px;
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
+    background-color: #2a2929;
+    border: 1px solid #043851;
     border-radius: 3px;
+    color: #d7d7d7;
+
+}
+#chat-messages .user-message {
+    color: #ffffff; !important; /* White for user messages */
 }
 
+#chat-messages .ai-response {
+    color: #a0e0ff; !important; /* Light blue for AI responses */
+}
 #user-input {
     width: 70%;
     padding: 5px;
