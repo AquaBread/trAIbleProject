@@ -412,6 +412,7 @@ def handle_message(data):
     emit('receive_message', {'message': ai_response})
 
 
+
 # Run the Flask app with SocketIO
 if __name__ == '__main__':
     socketio.run(app, debug=True)
