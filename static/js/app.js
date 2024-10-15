@@ -1,5 +1,4 @@
-// Initialize SocketIO client
-const socket = io();
+var socket = io();  // Connects to the server using Socket.IO
 
 // Listen for progress updates from the server
 socket.on('progress', function (data) {
@@ -356,3 +355,24 @@ function confirmAndRemoveFile(event) {
         });
     }
 }
+
+// AI Chat functionality
+function sendMessage() {
+    const message = document.getElementById('user-input').value;
+    if (message.trim() !== '') {
+        socket.emit('send_message', {message: message});  // Emit message to server
+        document.getElementById('chat-messages').innerHTML += '<p class="user-message"><strong>You:</strong> ' + message + '</p>';  // Append user message
+        document.getElementById('user-input').value = '';  // Clear input field
+    }
+}
+
+socket.on('receive_message', function(data) {
+    document.getElementById('chat-messages').innerHTML += '<p class="ai-response"><strong>AI:</strong> ' + data.message + '</p>';  // Append AI response
+});
+
+// Listen for 'Enter' key in the input field
+document.getElementById('user-input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {  // Send message if 'Enter' key is pressed
+        sendMessage();
+    }
+});

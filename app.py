@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
 import fitz  # PyMuPDF for PDF processing
@@ -8,10 +8,14 @@ import os
 import time
 import json
 from werkzeug.utils import secure_filename
+import requests
 
 # Initialize Flask app and SocketIO
 app = Flask(__name__)
 socketio = SocketIO(app)
+
+# Ollama API endpoint
+OLLAMA_API_URL = "http://localhost:11434/api/generate"
 
 # Configuration
 UPLOAD_FOLDER = 'resources/uploads'
@@ -347,7 +351,8 @@ def search():
         return jsonify({'error': 'No PDF file has been uploaded. Please upload a PDF to search through.'}), 400
 
     data = request.get_json()
-    keywords = data['keywords']
+    #keywords = data['keywords']
+    keywords = data.get('keywords', [])
     pdf_title = data.get('pdf_title')  # Optional filter for a specific PDF
 
     # Search in forum data
@@ -383,6 +388,28 @@ def view_pdf():
 
     # Return the PDF file
     return send_file(pdf_path)
+
+@socketio.on('send_message')
+def handle_message(data):
+    user_message = data['message']
+    
+    # Prepare the request to Ollama
+    payload = {
+        "model": "llama3.2",  # AI model to generate the response
+        "prompt": user_message,  # User's message is passed as the prompt
+        "stream": False  # Response is not streamed; it returns the complete response
+    }
+    
+    # Send request to Ollama API
+    response = requests.post(OLLAMA_API_URL, json=payload)
+    
+    if response.status_code == 200:
+        ai_response = response.json()['response']  # Extract the AI's response from the API response
+    else:
+        ai_response = "Sorry, I couldn't process that request."  # Fallback message if something goes wrong
+    
+    # Emit the AI's response back to the client
+    emit('receive_message', {'message': ai_response})
 
 # Run the Flask app with SocketIO
 if __name__ == '__main__':

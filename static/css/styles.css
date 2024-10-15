@@ -1,5 +1,7 @@
 /*********************  Body styles ******************** */
 body {
+    background-color: #191919;
+    color: #333;
     font-family: 'Times New Roman', Times, serif;
     margin: 0;
     padding: 0; 
@@ -12,11 +14,71 @@ h1, h2 {
 
 /*********************  Container styles ******************** */
 .container {
+    background-color: #2a2929;
     display: flex;
     justify-content: space-between;
     padding-right: 20px; 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/*********************  Chat Container styles ******************** */
+#chat-container {
+    width: 600px;
+    border: 1px solid #2c468e;
+    padding: 10px;
+    margin-top: 20px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #2a2929;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#chat-container input[type="text"],
+#chat-container textarea,
+#chat-container select {
+    background-color: #2a2929; /* Dark background for inputs in chat */
+    border: 1px solid #2c468e; /* Darker border color */
+    color: #d7d7d7; /* Light text color for readability */
+}
+
+#chat-messages {
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #2a2929;
+    border: 1px solid #2c468e;
+    border-radius: 3px;
+    color: #d7d7d7;
+
+}
+#chat-messages .user-message {
+    color: #ffffff; /* White for user messages */
+}
+
+#chat-messages .ai-response {
+    color: #a0e0ff; /* Light blue for AI responses */
+}
+#user-input {
+    width: 70%;
+    padding: 5px;
+    margin-right: 5px;
+}
+
+#chat-container button {
+    padding: 5px 10px;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+#chat-container button:hover {
+    background-color: rgb(0, 162, 255);
+}
 /********************* Hidden class *********************/
 .hidden {
     display: none !important;
@@ -24,7 +86,7 @@ h1, h2 {
 
 /********************** Style for Traible Search link **********************/
 .traible-search-link {
-    color: #333; 
+    color: blue; 
     text-decoration: none; 
     transition: color 0.3s ease;
 }
@@ -328,5 +390,3 @@ progress {
     padding: 10px;
     font-family: 'Times New Roman', Times, serif;
 }
-
-

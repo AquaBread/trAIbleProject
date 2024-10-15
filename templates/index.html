@@ -14,6 +14,7 @@
     <!-- External JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- AI -->
 </head>
 <body>
     <!-- Header with Link to Home -->
@@ -100,6 +101,13 @@
         var initialUploadRequired = {{ show_upload_modal | tojson }};
     </script>
     
+    <!-- AI -->
+    <div id="chat-container">
+        <div id="chat-messages"></div> <!-- Container for chat messages -->
+        <input type="text" id="user-input" placeholder="Type your message..."> <!-- User input -->
+        <button onclick="sendMessage()">Send</button> <!-- Button to send message -->
+    </div>
+
     <!-- Link to External JavaScript File -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
