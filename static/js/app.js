@@ -208,10 +208,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to display search results in the UI
 function displayResults(tkResults, pdfResults, keywords) {
+    const container = document.getElementById("container");
     const tkResultsDiv = document.getElementById("tk-results");
     const pdfResultsDiv = document.getElementById("pdf-results");
     const traibleKnowledgeHeading = document.getElementById("traible-knowledge-heading");
     const pdfResultsHeading = document.getElementById("pdf-results-heading");
+
+    container.classList.remove("hidden");
 
     // Clear previous results
     tkResultsDiv.innerHTML = "";
