@@ -393,23 +393,40 @@ def view_pdf():
 def handle_message(data):
     user_message = data['message']
     
-    # Prepare the request to Ollama
+    # Prepare the request to Ollama API with streaming enabled
     payload = {
-        "model": "llama3.2",  # AI model to generate the response
-        "prompt": user_message,  # User's message is passed as the prompt
-        "stream": False  # Response is not streamed; it returns the complete response
+        "model": "llama3.2",
+        "prompt": user_message,
+        "stream": True  # Enable streaming if the API supports it
     }
     
-    # Send request to Ollama API
-    response = requests.post(OLLAMA_API_URL, json=payload)
-    
-    if response.status_code == 200:
-        ai_response = response.json()['response']  # Extract the AI's response from the API response
-    else:
-        ai_response = "Sorry, I couldn't process that request."  # Fallback message if something goes wrong
-    
-    # Emit the AI's response back to the client
-    emit('receive_message', {'message': ai_response})
+    # Send request to Ollama API and stream the response
+    with requests.post(OLLAMA_API_URL, json=payload, stream=True) as response:
+        if response.status_code == 200:
+            partial_message = ""
+            for chunk in response.iter_content(chunk_size=None):
+                if chunk:
+                    # Decode the chunk and parse it as JSON
+                    json_chunk = chunk.decode('utf-8')
+                    response_data = json.loads(json_chunk)  # Parse JSON
+
+                    # Get the actual AI response (plain text)
+                    ai_message = response_data.get("response", "")
+                    partial_message += ai_message
+                    words = partial_message.split(' ')
+
+                    # Keep the last incomplete word
+                    partial_message = words.pop() if words else ""
+
+                    # Emit each word to the client
+                    for word in words:
+                        emit('receive_message', {'message': word}, broadcast=False)
+        else:
+            emit('receive_message', {'message': "Sorry, I couldn't process that request."}, broadcast=False)
+
+    # After streaming, emit any remaining part of the message
+    if partial_message:
+        emit('receive_message', {'message': partial_message}, broadcast=False)
 
 # Run the Flask app with SocketIO
 if __name__ == '__main__':

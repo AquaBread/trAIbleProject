@@ -366,9 +366,37 @@ function sendMessage() {
     }
 }
 
+let isNewResponse = true; // Tracks if a new response should start
+
+// Listen for each word being sent back from the server
 socket.on('receive_message', function(data) {
-    document.getElementById('chat-messages').innerHTML += '<p class="ai-response"><strong>AI:</strong> ' + data.message + '</p>';  // Append AI response
+    let lastMessage = $('#chat-messages').find('.ai-response:last');
+
+    // If it's a new response or there are no previous AI messages, create a new paragraph
+    if (isNewResponse || lastMessage.length === 0) {
+        $('#chat-messages').append('<p class="ai-response"><strong>AI:</strong> <span class="response-text"></span></p>');
+        lastMessage = $('#chat-messages').find('.ai-response:last .response-text');
+        isNewResponse = false;  // Mark that we're continuing this response
+    } else {
+        lastMessage = $('#chat-messages').find('.ai-response:last .response-text');
+    }
+
+    // Append the new word to the current AI response
+    lastMessage.append(data.message + ' ');
 });
+
+// After the user sends a message, reset for a new AI response
+function sendMessage() {
+    var message = $('#user-input').val();
+    if (message.trim() !== '') {
+        socket.emit('send_message', {message: message});
+        $('#chat-messages').append('<p class="user-message"><strong>You:</strong> ' + message + '</p>');
+        $('#user-input').val('');
+
+        // After user sends a message, set flag to start a new AI response
+        isNewResponse = true;
+    }
+}
 
 // Listen for 'Enter' key in the input field
 document.getElementById('user-input').addEventListener('keypress', function(event) {
