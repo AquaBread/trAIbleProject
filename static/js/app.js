@@ -79,6 +79,13 @@ function resetProgressBar() {
     document.getElementById('loading-container').style.display = 'none';
 }
 
+// Keyword search enter key
+document.getElementById('keywords').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') { 
+        searchKeywords();
+    }
+});
+
 // Function to initiate search based on keywords
 function searchKeywords() {
     const keywordsInput = document.getElementById("keywords").value;
@@ -388,6 +395,13 @@ socket.on('receive_message', function(data) {
     lastMessage.append(data.message + ' ');
 });
 
+// Listen for 'Enter' key in the user input field 
+document.getElementById('user-input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {  // Send message if 'Enter' key is pressed
+        sendMessage();
+    }
+});
+
 // After the user sends a message, reset for a new AI response
 function sendMessage() {
     var message = $('#user-input').val();
@@ -400,10 +414,3 @@ function sendMessage() {
         isNewResponse = true;
     }
 }
-
-// Listen for 'Enter' key in the input field
-document.getElementById('user-input').addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {  // Send message if 'Enter' key is pressed
-        sendMessage();
-    }
-});

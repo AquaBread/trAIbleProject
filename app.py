@@ -389,6 +389,7 @@ def view_pdf():
     # Return the PDF file
     return send_file(pdf_path)
 
+# AI Chatbot message
 @socketio.on('send_message')
 def handle_message(data):
     user_message = data['message']
