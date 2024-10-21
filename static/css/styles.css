@@ -318,3 +318,15 @@ h1, h2 {
     display: flex;
     flex-direction: column;
 }
+
+/********************** Loading Bar ********************/
+
+progress {
+    width: 100%;
+    height: 30px;
+}
+
+#progress-text {
+    text-align: center;
+    margin-top: 10px;
+}
