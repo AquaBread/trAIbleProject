@@ -12,8 +12,10 @@
     <form id="forum-form" onsubmit="submitProblem(event)">
         <label for="name">Your Name:</label>
         <input type="text" id="name" name="name" required>
+        
         <label for="problem-description">Problem Description:</label>
         <textarea id="problem-description" name="problem-description" rows="4" required></textarea>
+        
         <label for="solution">Solution:</label>
         <textarea id="solution" name="solution" rows="4" required></textarea>
         
@@ -28,7 +30,8 @@
     <div id="thank-you-message" class="hidden">Thank you for your submission!</div>
 
     <script>
-        
+        /* 
+        // Uncomment this if TOC data becomes necessary again
         function fetchTOC() {
             fetch('/get_toc')
                 .then(response => response.json())
@@ -48,20 +51,26 @@
                 tocDropdown.appendChild(option);
             });
         }
-        
+        */
+
         function submitProblem(event) {
             event.preventDefault();
         
             var name = document.getElementById("name").value;
             var problemDescription = document.getElementById("problem-description").value;
             var solution = document.getElementById("solution").value;
-            var selectedChapter = document.getElementById("toc-dropdown").value;
+            
+            // TOC information is commented out to allow submission without it
+            // var selectedChapter = document.getElementById("toc-dropdown") ? document.getElementById("toc-dropdown").value : '';
+            var selectedChapter = '';  // Leave empty if TOC is not in use
             var chapterPage = '';
         
+            /* 
             // Check if a chapter is selected
             if (selectedChapter) {
                 chapterPage = document.getElementById("toc-dropdown").options[document.getElementById("toc-dropdown").selectedIndex].getAttribute('data-page');
             }
+            */
             
             fetch('/submit_problem', {
                 method: 'POST',
@@ -103,10 +112,13 @@
                 console.error('Error:', error);
                 alert(error.message);
             });
-        }       
+        }
+        
         document.addEventListener('DOMContentLoaded', (event) => {
-            fetchTOC();
+            // Uncomment the following line if TOC data fetching is required
+            // fetchTOC();
         });
     </script>
 </body>
 </html>
+
