@@ -258,8 +258,8 @@ function displayResults(tkResults, pdfResults, keywords) {
                         <b>Submitted by:</b> ${result.Name}<br>
                         <b>Problem Description:</b> ${result['Problem Description']}<br>
                         <b>Solution:</b> ${result.Solution}<br>
-                        <b>Chapter:</b> ${result.Chapter}<br>
                     `;
+                    //<b>Chapter:</b> ${result.Chapter}<br>
                     keywordResultsDiv.appendChild(resultDiv);
                 });
 
