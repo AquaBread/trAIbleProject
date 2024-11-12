@@ -14,6 +14,7 @@
     <!-- External JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- AI -->
 </head>
 <body>
     <!-- Header with Link to Home -->
@@ -73,7 +74,7 @@
     <div id="search-info"></div>  
 
     <!-- Main Container with Left and Right Columns -->
-    <div class="container">
+    <div id="container" class="hidden">
         <!-- Left Column for PDF Search Results -->
         <div class="left-column scrollable">
             <h2 id="pdf-results-heading" class="hidden"><a href="/" class="traible-search-link">PDF Results</a></h2>
@@ -90,7 +91,7 @@
 
         <!-- Right Column for Traible Knowledge Forum Results -->
         <div class="right-column scrollable">
-            <h2 id="traible-knowledge-heading" class="hidden">Traible Knowledge</h2>
+            <h2 id="traible-knowledge-heading" class="hidden"><a href="/" class="traible-search-link">Traible Knowledge</a></h2>
             <div id="tk-results" class="results-container"></div>
         </div>
     </div>
@@ -100,6 +101,13 @@
         var initialUploadRequired = {{ show_upload_modal | tojson }};
     </script>
     
+    <!-- AI -->
+    <div id="chat-container">
+        <div id="chat-messages"></div> <!-- Container for chat messages -->
+        <input type="text" id="user-input" placeholder="Type your message..."> <!-- User input -->
+        <button onclick="sendMessage()">Send</button> <!-- Button to send message -->
+    </div>
+
     <!-- Link to External JavaScript File -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>

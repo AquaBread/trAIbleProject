@@ -1,5 +1,4 @@
-// Initialize SocketIO client
-const socket = io();
+var socket = io();  // Connects to the server using Socket.IO
 
 // Listen for progress updates from the server
 socket.on('progress', function (data) {
@@ -79,6 +78,13 @@ function resetProgressBar() {
     document.getElementById('progress-text').textContent = '0%';
     document.getElementById('loading-container').style.display = 'none';
 }
+
+// Keyword search enter key
+document.getElementById('keywords').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') { 
+        searchKeywords();
+    }
+});
 
 // Function to initiate search based on keywords
 function searchKeywords() {
@@ -209,10 +215,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to display search results in the UI
 function displayResults(tkResults, pdfResults, keywords) {
+    const container = document.getElementById("container");
     const tkResultsDiv = document.getElementById("tk-results");
     const pdfResultsDiv = document.getElementById("pdf-results");
     const traibleKnowledgeHeading = document.getElementById("traible-knowledge-heading");
     const pdfResultsHeading = document.getElementById("pdf-results-heading");
+
+    container.classList.remove("hidden");
 
     // Clear previous results
     tkResultsDiv.innerHTML = "";
@@ -249,8 +258,8 @@ function displayResults(tkResults, pdfResults, keywords) {
                         <b>Submitted by:</b> ${result.Name}<br>
                         <b>Problem Description:</b> ${result['Problem Description']}<br>
                         <b>Solution:</b> ${result.Solution}<br>
-                        <b>Chapter:</b> ${result.Chapter}<br>
                     `;
+                    //<b>Chapter:</b> ${result.Chapter}<br>
                     keywordResultsDiv.appendChild(resultDiv);
                 });
 
@@ -354,5 +363,54 @@ function confirmAndRemoveFile(event) {
             console.error('Error:', error);
             alert('An error occurred while removing the file.');
         });
+    }
+}
+
+// AI Chat functionality
+function sendMessage() {
+    const message = document.getElementById('user-input').value;
+    if (message.trim() !== '') {
+        socket.emit('send_message', {message: message});  // Emit message to server
+        document.getElementById('chat-messages').innerHTML += '<p class="user-message"><strong>You:</strong> ' + message + '</p>';  // Append user message
+        document.getElementById('user-input').value = '';  // Clear input field
+    }
+}
+
+let isNewResponse = true; // Tracks if a new response should start
+
+// Listen for each word being sent back from the server
+socket.on('receive_message', function(data) {
+    let lastMessage = $('#chat-messages').find('.ai-response:last');
+
+    // If it's a new response or there are no previous AI messages, create a new paragraph
+    if (isNewResponse || lastMessage.length === 0) {
+        $('#chat-messages').append('<p class="ai-response"><strong>AI:</strong> <span class="response-text"></span></p>');
+        lastMessage = $('#chat-messages').find('.ai-response:last .response-text');
+        isNewResponse = false;  // Mark that we're continuing this response
+    } else {
+        lastMessage = $('#chat-messages').find('.ai-response:last .response-text');
+    }
+
+    // Append the new word to the current AI response
+    lastMessage.append(data.message + ' ');
+});
+
+// Listen for 'Enter' key in the user input field 
+document.getElementById('user-input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {  // Send message if 'Enter' key is pressed
+        sendMessage();
+    }
+});
+
+// After the user sends a message, reset for a new AI response
+function sendMessage() {
+    var message = $('#user-input').val();
+    if (message.trim() !== '') {
+        socket.emit('send_message', {message: message});
+        $('#chat-messages').append('<p class="user-message"><strong>You:</strong> ' + message + '</p>');
+        $('#user-input').val('');
+
+        // After user sends a message, set flag to start a new AI response
+        isNewResponse = true;
     }
 }

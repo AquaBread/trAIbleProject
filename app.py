@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
 import fitz  # PyMuPDF for PDF processing
@@ -8,10 +8,14 @@ import os
 import time
 import json
 from werkzeug.utils import secure_filename
+import requests
 
 # Initialize Flask app and SocketIO
 app = Flask(__name__)
 socketio = SocketIO(app)
+
+# Ollama API endpoint
+OLLAMA_API_URL = "http://localhost:11434/api/generate"
 
 # Configuration
 UPLOAD_FOLDER = 'resources/uploads'
@@ -347,7 +351,8 @@ def search():
         return jsonify({'error': 'No PDF file has been uploaded. Please upload a PDF to search through.'}), 400
 
     data = request.get_json()
-    keywords = data['keywords']
+    #keywords = data['keywords']
+    keywords = data.get('keywords', [])
     pdf_title = data.get('pdf_title')  # Optional filter for a specific PDF
 
     # Search in forum data
@@ -383,6 +388,46 @@ def view_pdf():
 
     # Return the PDF file
     return send_file(pdf_path)
+
+# AI Chatbot message
+@socketio.on('send_message')
+def handle_message(data):
+    user_message = data['message']
+    
+    # Prepare the request to Ollama API with streaming enabled
+    payload = {
+        "model": "llama3.2",
+        "prompt": user_message,
+        "stream": True  # Enable streaming if the API supports it
+    }
+    
+    # Send request to Ollama API and stream the response
+    with requests.post(OLLAMA_API_URL, json=payload, stream=True) as response:
+        if response.status_code == 200:
+            partial_message = ""
+            for chunk in response.iter_content(chunk_size=None):
+                if chunk:
+                    # Decode the chunk and parse it as JSON
+                    json_chunk = chunk.decode('utf-8')
+                    response_data = json.loads(json_chunk)  # Parse JSON
+
+                    # Get the actual AI response (plain text)
+                    ai_message = response_data.get("response", "")
+                    partial_message += ai_message
+                    words = partial_message.split(' ')
+
+                    # Keep the last incomplete word
+                    partial_message = words.pop() if words else ""
+
+                    # Emit each word to the client
+                    for word in words:
+                        emit('receive_message', {'message': word}, broadcast=False)
+        else:
+            emit('receive_message', {'message': "Sorry, I couldn't process that request."}, broadcast=False)
+
+    # After streaming, emit any remaining part of the message
+    if partial_message:
+        emit('receive_message', {'message': partial_message}, broadcast=False)
 
 # Run the Flask app with SocketIO
 if __name__ == '__main__':
